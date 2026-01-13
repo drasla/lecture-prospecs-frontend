@@ -6,12 +6,45 @@ import { twMerge } from "tailwind-merge";
 import { useEffect, useState } from "react";
 
 const GNB_MENU = [
-    { name: "RUNNING", path: "/running" },
-    { name: "SPORTS STYLE", path: "/sports-style" },
-    { name: "HERITAGE", path: "/heritage" },
-    { name: "SPORTS", path: "/sports" },
-    { name: "ONE SPEC", path: "/onespec" },
-    { name: "OUR STORY", path: "/story" },
+    {
+        name: "RUNNING",
+        path: "/running",
+        subMenus: [
+            { name: "신발", path: "/running/shoes" },
+            { name: "의류", path: "/running/clothing" },
+            { name: "액세서리", path: "/running/accessories" },
+        ],
+    },
+    { name: "SPORTS STYLE", path: "/sports-style",
+        subMenus: [
+            { name: '신발', path: '/sports-style/shoes' },
+            { name: '의류', path: '/sports-style/clothing' },
+            { name: '액세서리', path: '/sports-style/accessories' },
+        ] },
+    { name: "HERITAGE", path: "/heritage",
+        subMenus: [
+            { name: '마라톤 110 파리', path: '/heritage/110-paris' },
+            { name: '마라톤 110', path: '/heritage/110' },
+            { name: '마라톤 220', path: '/heritage/220' },
+            { name: '그랜드 슬램 82', path: '/heritage/grand-slam' },
+        ] },
+    { name: "SPORTS", path: "/sports",
+        subMenus: [
+            { name: '야구', path: '/sports/baseball' },
+            { name: '축구', path: '/sports/football' },
+            { name: '농구', path: '/sports/basketball' },
+            { name: '기타', path: '/sports/etc' },
+        ] },
+    { name: "ONE SPEC", path: "/onespec",
+        subMenus: [] },
+    { name: "OUR STORY", path: "/story",
+        subMenus: [
+            { name: '공식 후원', path: '/story/sponsorship' },
+            { name: '브랜드 선언', path: '/story/manifesto' },
+            { name: '시즌 컬렉션', path: '/story/collection' },
+            { name: '브랜드 가이드', path: '/story/guide' },
+            { name: '이벤트', path: '/story/event' },
+        ] },
 ];
 
 const Header = () => {
@@ -59,6 +92,8 @@ const Header = () => {
                 {/* GNB (Desktop) */}
                 <nav className="hidden lg:flex flex-1 justify-center gap-10 font-bold text-[15px] tracking-tight">
                     {GNB_MENU.map(menu => (
+                        // [중요] group 클래스: 이 영역에 마우스를 올리면 자식 요소 중 group-hover를 가진 요소가 반응함
+                        <div key={menu.name} className="relative group h-full flex items-center">
                         <Link
                             key={menu.name}
                             to={menu.path}
@@ -66,6 +101,27 @@ const Header = () => {
                             {menu.name}
                             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-red-600 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
+
+                            {/* 하위 메뉴 (Drop Down) */}
+                            {menu.subMenus.length > 0 && (
+                                <ul className="absolute top-full left-1/2 -translate-x-1/2 w-40 bg-white border border-gray-100 shadow-lg py-3
+                               flex flex-col gap-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                    {/* top-full: 부모 높이만큼 내려옴, left-1/2 -translate-x-1/2: 중앙 정렬 */}
+                                    {/* opacity-0 invisible -> group-hover시 opacity-100 visible로 페이드인 효과 */}
+
+                                    {menu.subMenus.map((subMenu) => (
+                                        <li key={subMenu.name} className="text-center">
+                                            <Link
+                                                to={subMenu.path}
+                                                className="block py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-gray-50 transition-colors font-medium"
+                                            >
+                                                {subMenu.name}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                     ))}
                 </nav>
 
@@ -76,10 +132,11 @@ const Header = () => {
                         <input
                             type="text"
                             placeholder="검색"
-                            className={twMerge("w-40 border-b border-black text-sm py-1 focus:outline-none focus:w-60 transition-all",
+                            className={twMerge(
+                                "w-40 border-b border-black text-sm py-1 focus:outline-none focus:w-60 transition-all",
                                 isTransparent
-                                ? "bg-transparent border-white text-white placeholder:text-white"
-                                : "border-gray-100",
+                                    ? "bg-transparent border-white text-white placeholder:text-white"
+                                    : "border-gray-100",
                             )}
                         />
                         <button className="absolute right-0 top-1 text-xl">

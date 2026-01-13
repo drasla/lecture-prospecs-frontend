@@ -25,10 +25,10 @@ const TopBanner = () => {
                 modules={[Autoplay]}
                 className="h-full w-full max-w-lg">
                 {NOTICES.map((notice, index) => (
-                    <SwiperSlide key={index} className="flex items-center justify-center text-xs">
-                        <span className="cursor-pointer hover:underline underline-offset-4">
+                    <SwiperSlide key={index} className="h-full !flex !items-center !justify-center text-xs">
+                        <div className="cursor-pointer hover:underline">
                             {notice}
-                        </span>
+                        </div>
                     </SwiperSlide>
                 ))}
             </Swiper>
