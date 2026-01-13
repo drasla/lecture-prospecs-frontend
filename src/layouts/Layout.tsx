@@ -9,9 +9,7 @@ const Layout = () => {
     return (
         <div className="min-h-screen flex flex-col font-sans">
             {/* 1. TopBanner: 화면 최상단에 고정 (Fixed) */}
-            <div className="fixed top-0 left-0 right-0 z-[60]">
-                <TopBanner />
-            </div>
+            <TopBanner />
 
             {/* 2. Header: TopBanner 높이만큼 top을 가져야 함 (Sticky) */}
             {/* TopBanner가 fixed이므로, Header는 그 아래에 위치해야 함 */}

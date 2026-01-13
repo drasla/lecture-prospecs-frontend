@@ -15,30 +15,32 @@ const TopBanner = () => {
     if (!isTopBannerVisible) return null;
 
     return (
-        <div
-            className="relative bg-black text-white flex items-center justify-center overflow-hidden transition-all duration-300"
-            style={{ height: `${topBannerHeight}px` }}>
-            <Swiper
-                direction={"vertical"}
-                loop={true}
-                autoplay={{ delay: 3000, disableOnInteraction: false }}
-                modules={[Autoplay]}
-                className="h-full w-full max-w-lg">
-                {NOTICES.map((notice, index) => (
-                    <SwiperSlide key={index} className="h-full !flex !items-center !justify-center text-xs">
-                        <div className="cursor-pointer hover:underline">
-                            {notice}
-                        </div>
-                    </SwiperSlide>
-                ))}
-            </Swiper>
+        <div className="fixed top-0 left-0 right-0 z-[60]">
+            <div
+                className="relative bg-black text-white flex items-center justify-center overflow-hidden transition-all duration-300"
+                style={{ height: `${topBannerHeight}px` }}>
+                <Swiper
+                    direction={"vertical"}
+                    loop={true}
+                    autoplay={{ delay: 3000, disableOnInteraction: false }}
+                    modules={[Autoplay]}
+                    className="h-full w-full max-w-lg">
+                    {NOTICES.map((notice, index) => (
+                        <SwiperSlide
+                            key={index}
+                            className="h-full !flex !items-center !justify-center text-xs">
+                            <div className="cursor-pointer hover:underline">{notice}</div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
 
-            <button
-                onClick={hideTopBanner}
-                className="absolute right-4 text-white text-lg p-1"
-                aria-label="Close Top Banner">
-                <IoClose />
-            </button>
+                <button
+                    onClick={hideTopBanner}
+                    className="absolute right-4 text-white text-lg p-1"
+                    aria-label="Close Top Banner">
+                    <IoClose />
+                </button>
+            </div>
         </div>
     );
 };

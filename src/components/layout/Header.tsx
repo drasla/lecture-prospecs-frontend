@@ -81,7 +81,6 @@ const Header = () => {
 
     const isHome = pathname === "/";
     const isTransparent = isHome && !isScrolled;
-    const isHeaderActive = isScrolled || isMenuOpen;
 
     return (
         <header
@@ -110,7 +109,7 @@ const Header = () => {
                     {GNB_MENU.map(menu => (
                         <div
                             key={menu.name}
-                            className="relative h-full flex items-center"
+                            className="relative w-26 h-full flex items-center"
                             onMouseEnter={() => setHoveredMenu(menu.name)}>
                             <Link
                                 key={menu.name}
@@ -128,7 +127,7 @@ const Header = () => {
                 </nav>
 
                 {/* 우측 아이콘 */}
-                <div className="flex items-center gap-5 text-2xl w-60 justify-end">
+                <div className="flex items-center gap-5 text-2xl w-100 justify-end">
                     {/* ... 검색창 및 아이콘 코드 (이전과 동일) ... */}
                     <div className="relative hidden md:block group">
                         <input
@@ -168,13 +167,12 @@ const Header = () => {
                 )}
             >
                 {/* 상단 nav와 동일한 gap, 동일한 justify 구조를 가짐 */}
-                <div className="container mx-auto px-4 h-full flex justify-between pt-6">
+                <div className="container mx-auto px-4 h-full flex justify-center pt-6">
                     <div className="w-40 invisible">Logo Space</div>
 
                     <div className="hidden lg:flex flex-1 justify-center gap-12 h-full">
                     {GNB_MENU.map((menu) => (
-                        // 상단 메뉴와 동일한 w-32 너비를 가짐 -> 수직 정렬 일치
-                        <ul key={menu.name} className="w-32 flex flex-col gap-3 text-center">
+                        <ul key={menu.name} className="w-26 flex flex-col gap-3">
                             {menu.subMenus.map((subMenu) => (
                                 <li key={subMenu.name}>
                                     <Link
@@ -188,6 +186,7 @@ const Header = () => {
                         </ul>
                     ))}
                     </div>
+                    <div className="w-100 invisible">Icon Space</div>
                 </div>
             </div>
         </header>
