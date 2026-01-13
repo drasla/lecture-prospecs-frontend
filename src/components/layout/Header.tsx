@@ -76,7 +76,8 @@ const Header = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+    const isMenuOpen = hoveredMenu !== null;
 
     const isHome = pathname === "/";
     const isTransparent = isHome && !isScrolled;
@@ -84,7 +85,7 @@ const Header = () => {
 
     return (
         <header
-            onMouseLeave={() => setIsMenuOpen(false)}
+            onMouseLeave={() => setHoveredMenu(null)}
             className={twMerge(
                 "fixed left-0 right-0 z-50 transition-all duration-300 border-b",
                 isTransparent
@@ -100,7 +101,7 @@ const Header = () => {
                 </button>
 
                 {/* 로고 */}
-                <Link to="/" className="flex-shrink-0">
+                <Link to="/" className="flex-shrink-0 w-40">
                     <span className="text-3xl font-black tracking-tighter italic">PROSPECS</span>
                 </Link>
 
@@ -110,7 +111,7 @@ const Header = () => {
                         <div
                             key={menu.name}
                             className="relative h-full flex items-center"
-                            onMouseEnter={() => setIsMenuOpen(true)}>
+                            onMouseEnter={() => setHoveredMenu(menu.name)}>
                             <Link
                                 key={menu.name}
                                 to={menu.path}
@@ -119,7 +120,7 @@ const Header = () => {
                                 <span
                                     className={twMerge([
                                         "absolute bottom-0 left-0 h-[2px] bg-red-600 transition-all duration-300 group-hover:w-full",
-                                        isMenuOpen ? "w-full" : "w-0",
+                                        hoveredMenu === menu.name ? "w-full" : "w-0",
                                     ])}></span>
                             </Link>
                         </div>
@@ -127,7 +128,7 @@ const Header = () => {
                 </nav>
 
                 {/* 우측 아이콘 */}
-                <div className="flex items-center gap-5 text-2xl">
+                <div className="flex items-center gap-5 text-2xl w-60 justify-end">
                     {/* ... 검색창 및 아이콘 코드 (이전과 동일) ... */}
                     <div className="relative hidden md:block group">
                         <input
@@ -167,11 +168,10 @@ const Header = () => {
                 )}
             >
                 {/* 상단 nav와 동일한 gap, 동일한 justify 구조를 가짐 */}
-                <div className="container mx-auto px-4 h-full flex justify-center gap-12 pt-6">
+                <div className="container mx-auto px-4 h-full flex justify-between pt-6">
+                    <div className="w-40 invisible">Logo Space</div>
 
-                    {/* 좌측 로고 영역만큼의 빈 공간 (flex-1 justify-center 구조를 맞추기 위해 필요하다면 margin-left를 조정하거나, Nav와 동일한 구조 사용) */}
-                    {/* 여기서는 Nav와 정확히 1:1 매칭되는 구조를 생성 */}
-
+                    <div className="hidden lg:flex flex-1 justify-center gap-12 h-full">
                     {GNB_MENU.map((menu) => (
                         // 상단 메뉴와 동일한 w-32 너비를 가짐 -> 수직 정렬 일치
                         <ul key={menu.name} className="w-32 flex flex-col gap-3 text-center">
@@ -187,6 +187,7 @@ const Header = () => {
                             ))}
                         </ul>
                     ))}
+                    </div>
                 </div>
             </div>
         </header>
