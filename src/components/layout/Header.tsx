@@ -15,36 +15,47 @@ const GNB_MENU = [
             { name: "액세서리", path: "/running/accessories" },
         ],
     },
-    { name: "SPORTS STYLE", path: "/sports-style",
+    {
+        name: "SPORTS STYLE",
+        path: "/sports-style",
         subMenus: [
-            { name: '신발', path: '/sports-style/shoes' },
-            { name: '의류', path: '/sports-style/clothing' },
-            { name: '액세서리', path: '/sports-style/accessories' },
-        ] },
-    { name: "HERITAGE", path: "/heritage",
+            { name: "신발", path: "/sports-style/shoes" },
+            { name: "의류", path: "/sports-style/clothing" },
+            { name: "액세서리", path: "/sports-style/accessories" },
+        ],
+    },
+    {
+        name: "HERITAGE",
+        path: "/heritage",
         subMenus: [
-            { name: '마라톤 110 파리', path: '/heritage/110-paris' },
-            { name: '마라톤 110', path: '/heritage/110' },
-            { name: '마라톤 220', path: '/heritage/220' },
-            { name: '그랜드 슬램 82', path: '/heritage/grand-slam' },
-        ] },
-    { name: "SPORTS", path: "/sports",
+            { name: "마라톤 110 파리", path: "/heritage/110-paris" },
+            { name: "마라톤 110", path: "/heritage/110" },
+            { name: "마라톤 220", path: "/heritage/220" },
+            { name: "그랜드 슬램 82", path: "/heritage/grand-slam" },
+        ],
+    },
+    {
+        name: "SPORTS",
+        path: "/sports",
         subMenus: [
-            { name: '야구', path: '/sports/baseball' },
-            { name: '축구', path: '/sports/football' },
-            { name: '농구', path: '/sports/basketball' },
-            { name: '기타', path: '/sports/etc' },
-        ] },
-    { name: "ONE SPEC", path: "/onespec",
-        subMenus: [] },
-    { name: "OUR STORY", path: "/story",
+            { name: "야구", path: "/sports/baseball" },
+            { name: "축구", path: "/sports/football" },
+            { name: "농구", path: "/sports/basketball" },
+            { name: "기타", path: "/sports/etc" },
+        ],
+    },
+    { name: "ONE SPEC", path: "/onespec", subMenus: [] },
+    {
+        name: "OUR STORY",
+        path: "/story",
         subMenus: [
-            { name: '공식 후원', path: '/story/sponsorship' },
-            { name: '브랜드 선언', path: '/story/manifesto' },
-            { name: '시즌 컬렉션', path: '/story/collection' },
-            { name: '브랜드 가이드', path: '/story/guide' },
-            { name: '이벤트', path: '/story/event' },
-        ] },
+            { name: "공식 후원", path: "/story/sponsorship" },
+            { name: "브랜드 선언", path: "/story/manifesto" },
+            { name: "시즌 컬렉션", path: "/story/collection" },
+            { name: "브랜드 가이드", path: "/story/guide" },
+            { name: "이벤트", path: "/story/event" },
+        ],
+    },
 ];
 
 const Header = () => {
@@ -65,11 +76,15 @@ const Header = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     const isHome = pathname === "/";
     const isTransparent = isHome && !isScrolled;
+    const isHeaderActive = isScrolled || isMenuOpen;
 
     return (
         <header
+            onMouseLeave={() => setIsMenuOpen(false)}
             className={twMerge(
                 "fixed left-0 right-0 z-50 transition-all duration-300 border-b",
                 isTransparent
@@ -90,37 +105,23 @@ const Header = () => {
                 </Link>
 
                 {/* GNB (Desktop) */}
-                <nav className="hidden lg:flex flex-1 justify-center gap-10 font-bold text-[15px] tracking-tight">
+                <nav className="hidden lg:flex flex-1 justify-center gap-12 font-bold text-[15px] tracking-tight">
                     {GNB_MENU.map(menu => (
-                        // [중요] group 클래스: 이 영역에 마우스를 올리면 자식 요소 중 group-hover를 가진 요소가 반응함
-                        <div key={menu.name} className="relative group h-full flex items-center">
-                        <Link
+                        <div
                             key={menu.name}
-                            to={menu.path}
-                            className="relative group py-7 hover:text-red-600 transition-colors">
-                            {menu.name}
-                            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-red-600 transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-
-                            {/* 하위 메뉴 (Drop Down) */}
-                            {menu.subMenus.length > 0 && (
-                                <ul className="absolute top-full left-1/2 -translate-x-1/2 w-40 bg-white border border-gray-100 shadow-lg py-3
-                               flex flex-col gap-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                                    {/* top-full: 부모 높이만큼 내려옴, left-1/2 -translate-x-1/2: 중앙 정렬 */}
-                                    {/* opacity-0 invisible -> group-hover시 opacity-100 visible로 페이드인 효과 */}
-
-                                    {menu.subMenus.map((subMenu) => (
-                                        <li key={subMenu.name} className="text-center">
-                                            <Link
-                                                to={subMenu.path}
-                                                className="block py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-gray-50 transition-colors font-medium"
-                                            >
-                                                {subMenu.name}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                            className="relative h-full flex items-center"
+                            onMouseEnter={() => setIsMenuOpen(true)}>
+                            <Link
+                                key={menu.name}
+                                to={menu.path}
+                                className="relative py-7 hover:text-red-600 transition-colors">
+                                {menu.name}
+                                <span
+                                    className={twMerge([
+                                        "absolute bottom-0 left-0 h-[2px] bg-red-600 transition-all duration-300 group-hover:w-full",
+                                        isMenuOpen ? "w-full" : "w-0",
+                                    ])}></span>
+                            </Link>
                         </div>
                     ))}
                 </nav>
@@ -155,6 +156,37 @@ const Header = () => {
                             </span>
                         )}
                     </Link>
+                </div>
+            </div>
+
+            {/* [전체 펼침 메뉴 (Mega Menu)] */}
+            <div
+                className={twMerge(
+                    "absolute top-20 left-0 w-full bg-white border-t border-gray-100 overflow-hidden transition-all duration-300 ease-in-out z-10",
+                    isMenuOpen ? "h-64 opacity-100 border-b shadow-sm" : "h-0 opacity-0 border-b-0"
+                )}
+            >
+                {/* 상단 nav와 동일한 gap, 동일한 justify 구조를 가짐 */}
+                <div className="container mx-auto px-4 h-full flex justify-center gap-12 pt-6">
+
+                    {/* 좌측 로고 영역만큼의 빈 공간 (flex-1 justify-center 구조를 맞추기 위해 필요하다면 margin-left를 조정하거나, Nav와 동일한 구조 사용) */}
+                    {/* 여기서는 Nav와 정확히 1:1 매칭되는 구조를 생성 */}
+
+                    {GNB_MENU.map((menu) => (
+                        // 상단 메뉴와 동일한 w-32 너비를 가짐 -> 수직 정렬 일치
+                        <ul key={menu.name} className="w-32 flex flex-col gap-3 text-center">
+                            {menu.subMenus.map((subMenu) => (
+                                <li key={subMenu.name}>
+                                    <Link
+                                        to={subMenu.path}
+                                        className="block text-sm text-gray-500 hover:text-red-600 hover:underline underline-offset-4 transition-colors font-medium"
+                                    >
+                                        {subMenu.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    ))}
                 </div>
             </div>
         </header>
