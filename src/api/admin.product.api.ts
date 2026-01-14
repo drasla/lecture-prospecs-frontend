@@ -1,4 +1,5 @@
 import type { Product, ProductListResponse } from "../types/product";
+import qs from "qs";
 import { httpClient } from "./axios.ts";
 
 // [Type] 상품 생성/수정 시 서버로 보낼 데이터 타입
@@ -10,13 +11,18 @@ export interface CreateProductRequest {
     price: number;
     categoryId: number;
 
-    material?: string;          // 소재
-    manufacturer?: string;      // 제조사
-    originCountry?: string;     // 제조국
-    careInstructions?: string;  // [New] 세탁방법 및 취급시 주의사항
-    manufactureDate?: string;   // [New] 제조년월
-    qualityAssurance?: string;  // [New] 품질보증기준
-    asPhone?: string;           // [New] A/S 책임자와 전화번호
+    // [New] 필수 필드 추가
+    style: string;
+    gender: string;
+
+    material?: string;
+    sizeInfo?: string;
+    manufacturer?: string;
+    originCountry?: string;
+    careInstructions?: string;
+    manufactureDate?: string;
+    qualityAssurance?: string;
+    asPhone?: string;
 
     isNew?: boolean;
     isBest?: boolean;
@@ -25,7 +31,7 @@ export interface CreateProductRequest {
         productCode: string;
         colorName: string;
         hexCode?: string;
-        colorInfo?: string;       // [New] 색상 상세 설명
+        colorInfo?: string;
         images: string[];
         sizes: {
             size: string;
@@ -34,10 +40,22 @@ export interface CreateProductRequest {
     }[];
 }
 
+export interface GetProductParams {
+    page?: number;
+    limit?: number;
+    categoryId?: number;
+    styles?: string[]; // ['RACING', 'JACKET']
+    genders?: string[]; // ['MALE']
+    sizes?: string[]; // ['260', '100']
+}
+
 // 상품 목록 조회
-export const getProducts = async (page: number = 1, limit: number = 10, categoryId?: number) => {
-    const params = { page, limit, categoryId };
-    const response = await httpClient.get<ProductListResponse>("/admin/products", { params });
+export const getProducts = async (params: GetProductParams) => {
+    const response = await httpClient.get<ProductListResponse>("/admin/products", {
+        params,
+        // 배열 파라미터 직렬화 (qs 라이브러리 사용)
+        paramsSerializer: params => qs.stringify(params, { arrayFormat: "repeat" }),
+    });
     return response.data;
 };
 
@@ -51,7 +69,7 @@ export const getProductDetail = async (id: number) => {
 export const createProduct = async (data: CreateProductRequest) => {
     const response = await httpClient.post<{ message: string; product: Product }>(
         "/admin/products",
-        data
+        data,
     );
     return response.data;
 };
@@ -60,7 +78,7 @@ export const createProduct = async (data: CreateProductRequest) => {
 export const updateProduct = async (id: number, data: CreateProductRequest) => {
     const response = await httpClient.put<{ message: string; product: Product }>(
         `/admin/products/${id}`,
-        data
+        data,
     );
     return response.data;
 };

@@ -11,7 +11,7 @@ const GNB_MENU = [
         name: "RUNNING",
         path: "/running",
         subMenus: [
-            { name: "신발", path: "/running/shoes" },
+            { name: "신발", path: "/category/6" },
             { name: "의류", path: "/running/clothing" },
             { name: "액세서리", path: "/running/accessories" },
         ],

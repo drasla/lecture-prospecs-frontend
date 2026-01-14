@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { AxiosError } from "axios";
-import type { CategoryTree } from "../../../types/category.ts";
-import { getCategories } from "../../../api/admin.category.api.ts";
-import Input from "../../../components/common/Input.tsx";
-import Button from "../../../components/common/Button.tsx";
-import ColorFormItem from "../../../components/common/ColorFormItem.tsx";
-import { createProduct, type CreateProductRequest } from "../../../api/admin.product.api.ts";
+import {
+    getProductDetail,
+    updateProduct,
+    type CreateProductRequest,
+} from "../../../api/admin.product.api";
+import type { CategoryTree } from "../../../types/category";
+import { getCategories } from "../../../api/admin.category.api";
+import Input from "../../../components/common/Input";
+import Button from "../../../components/common/Button";
+import ColorFormItem from "../../../components/common/ColorFormItem";
 import Editor from "../../../components/common/Editor";
-import { FILTER_GENDERS, FILTER_STYLES } from "../../../constants/filter.const"; // 분리한 컴포넌트
+import { FILTER_GENDERS, FILTER_STYLES } from "../../../constants/filter.const"; // [New] 상수 import
 
-// 폼 데이터 타입 정의 (중첩 구조)
-export interface CreateProductForm extends Omit<CreateProductRequest, "colors"> {
-    // [New] style, gender는 CreateProductRequest에 이미 포함되어 있지만 명시적으로 확인
+// 폼 타입 (style, gender 추가)
+interface EditProductForm extends Omit<CreateProductRequest, "colors"> {
     style: string;
     gender: string;
 
@@ -27,24 +30,24 @@ export interface CreateProductForm extends Omit<CreateProductRequest, "colors"> 
     }[];
 }
 
-const AdminProductNew = () => {
+const AdminProductEdit = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
     const [categories, setCategories] = useState<CategoryTree[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Hook Form 초기화
+    // Hook Form
     const {
         register,
         control,
         handleSubmit,
+        reset,
         formState: { errors, isSubmitting },
-    } = useForm<CreateProductForm>({
+    } = useForm<EditProductForm>({
         defaultValues: {
-            isNew: true,
+            isNew: false,
             isBest: false,
-            // [New] 기본값 설정 (필수 필드이므로 초기값 필요)
-            style: FILTER_STYLES[0].value,
-            gender: FILTER_GENDERS[2].value, // COMMON(성인공통)을 기본으로
-            colors: [{ images: [], sizes: [{ size: "", stock: 0 }] }],
+            colors: [],
         },
     });
 
@@ -57,65 +60,118 @@ const AdminProductNew = () => {
         name: "colors",
     });
 
+    // 초기 데이터 로드
     useEffect(() => {
-        const loadCategories = async () => {
+        const init = async () => {
+            if (!id) return;
             try {
-                const data = await getCategories();
-                const subCategories = data.filter(
+                setIsLoading(true);
+
+                const [categoryData, productData] = await Promise.all([
+                    getCategories(),
+                    getProductDetail(Number(id)),
+                ]);
+
+                const subCategories = categoryData.filter(
                     c => c.parentId !== null,
                 ) as unknown as CategoryTree[];
                 setCategories(subCategories);
+
+                // 폼 데이터 매핑
+                const formData: EditProductForm = {
+                    name: productData.name,
+                    description: productData.description,
+                    summary: productData.summary || "",
+                    price: productData.price,
+                    categoryId: productData.categoryId,
+
+                    // [New] 필터링 데이터 초기값 설정
+                    style: productData.style || FILTER_STYLES[0].value, // 값이 없으면 기본값
+                    gender: productData.gender || FILTER_GENDERS[2].value,
+
+                    // 메타 정보
+                    material: productData.material || "",
+                    sizeInfo: productData.sizeInfo || "",
+                    manufacturer: productData.manufacturer || "",
+                    originCountry: productData.originCountry || "",
+                    careInstructions: productData.careInstructions || "",
+                    manufactureDate: productData.manufactureDate || "",
+                    qualityAssurance: productData.qualityAssurance || "",
+                    asPhone: productData.asPhone || "",
+
+                    isNew: productData.isNew,
+                    isBest: productData.isBest,
+
+                    // 중첩 데이터 변환
+                    colors: productData.colors.map(c => ({
+                        productCode: c.productCode,
+                        colorName: c.colorName,
+                        hexCode: c.hexCode || "",
+                        colorInfo: c.colorInfo || "",
+                        images: c.images.map(img => ({ url: img.url })),
+                        sizes: c.sizes.map(s => ({ size: s.size, stock: s.stock })),
+                    })),
+                };
+
+                reset(formData);
             } catch (e) {
-                alert("카테고리 로드 실패");
+                console.error(e);
+                alert("상품 정보를 불러오지 못했습니다.");
+                navigate("/admin/products");
+            } finally {
+                setIsLoading(false);
             }
         };
-        loadCategories();
-    }, []);
 
-    const onSubmit = async (data: CreateProductForm) => {
+        init();
+    }, [id, navigate, reset]);
+
+    const onSubmit = async (data: EditProductForm) => {
+        if (!id) return;
         try {
-            const payload = {
+            // [Check] style, gender는 data 안에 이미 포함되어 있음
+            const payload: CreateProductRequest = {
                 ...data,
-                // [Check] style, gender는 이미 data 안에 포함되어 있음
                 colors: data.colors.map(c => ({
                     ...c,
                     images: c.images.map(img => img.url),
                 })),
             };
 
-            await createProduct(payload);
-            alert("상품이 등록되었습니다.");
+            await updateProduct(Number(id), payload);
+            alert("상품이 수정되었습니다.");
             navigate("/admin/products");
         } catch (error) {
             if (error instanceof AxiosError) {
-                alert(error.response?.data?.message || "등록 실패");
+                alert(error.response?.data?.message || "수정 실패");
             } else {
                 alert("오류가 발생했습니다.");
             }
         }
     };
 
+    if (isLoading) return <div className="p-10 text-center">데이터를 불러오는 중...</div>;
+
     return (
         <div className="pb-20 max-w-5xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8">신규 상품 등록</h2>
+            <h2 className="text-2xl font-bold mb-8">상품 수정</h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-                {/* 1. 기본 정보 섹션 */}
+                {/* 1. 기본 정보 */}
                 <section className="bg-white p-6 border border-gray-200 shadow-sm rounded-lg space-y-6">
                     <h3 className="font-bold text-lg border-b pb-2">기본 정보</h3>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Input
                             label="상품명"
-                            placeholder="상품 이름을 입력하세요"
-                            registration={register("name", { required: "상품명은 필수입니다." })}
+                            placeholder="상품명"
+                            registration={register("name", { required: "필수" })}
                             error={errors.name}
                         />
 
                         {/* 카테고리 선택 */}
                         <div>
                             <label className="text-xs font-bold text-gray-500 mb-1 block">
-                                카테고리 <span className="text-red-500">*</span>
+                                카테고리
                             </label>
                             <select
                                 className="w-full border border-gray-300 p-4 text-sm focus:outline-none focus:border-black bg-white appearance-none"
@@ -184,15 +240,14 @@ const AdminProductNew = () => {
                         <Input
                             type="number"
                             label="판매가"
-                            placeholder="가격 입력"
+                            placeholder="가격"
                             registration={register("price", {
-                                required: "가격은 필수입니다.",
+                                required: "필수",
                                 valueAsNumber: true,
                             })}
                             error={errors.price}
                         />
 
-                        {/* 체크박스 그룹 */}
                         <div className="flex gap-6 items-center pt-6">
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
@@ -200,7 +255,7 @@ const AdminProductNew = () => {
                                     {...register("isNew")}
                                     className="w-5 h-5 accent-black"
                                 />
-                                <span className="text-sm font-bold">NEW 상품</span>
+                                <span className="text-sm font-bold">NEW</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
@@ -208,95 +263,62 @@ const AdminProductNew = () => {
                                     {...register("isBest")}
                                     className="w-5 h-5 accent-black"
                                 />
-                                <span className="text-sm font-bold">BEST 상품</span>
+                                <span className="text-sm font-bold">BEST</span>
                             </label>
                         </div>
                     </div>
 
-                    {/* 설명 섹션 */}
-                    <div className="space-y-4">
-                        <Input
-                            label="요약 설명 (선택)"
-                            placeholder="상품 카드에 노출될 짧은 설명"
-                            registration={register("summary")}
-                        />
+                    <Input
+                        label="요약 설명 (선택)"
+                        placeholder="요약 설명"
+                        registration={register("summary")}
+                    />
 
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 mb-1 block">
-                                상세 설명
-                            </label>
-                            <Controller
-                                name="description"
-                                control={control}
-                                rules={{ required: "상세 설명은 필수입니다." }}
-                                render={({ field: { onChange, value } }) => (
-                                    <Editor
-                                        value={value || ""}
-                                        onChange={onChange}
-                                        placeholder="상품 상세 내용을 입력하세요."
-                                    />
-                                )}
-                            />
-                            {errors.description && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.description.message}
-                                </p>
+                    <div>
+                        <label className="text-xs font-bold text-gray-500 mb-1 block">
+                            상세 설명
+                        </label>
+                        <Controller
+                            name="description"
+                            control={control}
+                            rules={{ required: "상세 설명은 필수입니다." }}
+                            render={({ field: { onChange, value } }) => (
+                                <Editor
+                                    value={value || ""}
+                                    onChange={onChange}
+                                    placeholder="상품 상세 내용을 입력하세요."
+                                />
                             )}
-                        </div>
+                        />
+                        {errors.description && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.description.message}
+                            </p>
+                        )}
                     </div>
                 </section>
 
-                {/* 2. 상품 상세 스펙 (Meta Info) - 기존과 동일 */}
+                {/* 2. 상세 정보 (고시 정보) */}
                 <section className="bg-white p-6 border border-gray-200 shadow-sm rounded-lg space-y-6">
                     <h3 className="font-bold text-lg border-b pb-2">상품 고시 정보</h3>
-                    {/* ... (기존 Input 필드들 유지) ... */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input
-                            label="소재"
-                            placeholder="예: 폴리에스터 100%"
-                            registration={register("material")}
-                        />
-                        <Input
-                            label="사이즈 정보"
-                            placeholder="예: 정사이즈"
-                            registration={register("sizeInfo")}
-                        />
-                        <Input
-                            label="제조사"
-                            placeholder="예: (주)LS네트웍스"
-                            registration={register("manufacturer")}
-                        />
-                        <Input
-                            label="제조국"
-                            placeholder="예: 베트남"
-                            registration={register("originCountry")}
-                        />
-                        <Input
-                            label="제조년월"
-                            placeholder="예: 2024.01"
-                            registration={register("manufactureDate")}
-                        />
+                        <Input label="소재" registration={register("material")} />
+                        <Input label="사이즈 정보" registration={register("sizeInfo")} />
+                        <Input label="제조사" registration={register("manufacturer")} />
+                        <Input label="제조국" registration={register("originCountry")} />
+                        <Input label="제조년월" registration={register("manufactureDate")} />
                         <Input
                             label="세탁/취급 주의사항"
-                            placeholder="예: 손세탁 권장"
                             registration={register("careInstructions")}
                             fullWidth
                             className="md:col-span-2"
                         />
-                        <Input
-                            label="품질보증기준"
-                            placeholder="관련 법 및 소비자 분쟁해결 기준에 따름"
-                            registration={register("qualityAssurance")}
-                        />
-                        <Input
-                            label="A/S 책임자/전화번호"
-                            placeholder="예: 080-000-0000"
-                            registration={register("asPhone")}
-                        />
+                        <Input label="품질보증기준" registration={register("qualityAssurance")} />
+                        <Input label="A/S 책임자/전화번호" registration={register("asPhone")} />
                     </div>
                 </section>
 
-                {/* 3. 옵션 정보 - 기존과 동일 */}
+                {/* 3. 옵션 정보 - 기존 유지 */}
                 <section className="space-y-4">
                     <div className="flex justify-between items-center">
                         <h3 className="font-bold text-lg">상품 옵션 (색상/사이즈)</h3>
@@ -309,7 +331,6 @@ const AdminProductNew = () => {
                             + 색상 추가
                         </Button>
                     </div>
-
                     <div className="space-y-6">
                         {colorFields.map((field, index) => (
                             <ColorFormItem
@@ -324,9 +345,11 @@ const AdminProductNew = () => {
                     </div>
                 </section>
 
-                {/* 하단 버튼 */}
                 <div className="flex justify-end gap-3 pt-10 border-t">
-                    <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => navigate("/admin/products")}>
                         취소
                     </Button>
                     <Button
@@ -334,7 +357,7 @@ const AdminProductNew = () => {
                         variant="primary"
                         isLoading={isSubmitting}
                         className="w-40">
-                        상품 등록 완료
+                        수정 완료
                     </Button>
                 </div>
             </form>
@@ -342,4 +365,4 @@ const AdminProductNew = () => {
     );
 };
 
-export default AdminProductNew;
+export default AdminProductEdit;
