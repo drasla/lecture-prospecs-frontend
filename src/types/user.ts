@@ -7,6 +7,7 @@ export interface User {
     gender: "MALE" | "FEMALE";
     emailOptIn: boolean;
     smsOptIn: boolean;
+    role: "USER" | "ADMIN";
 }
 
 export interface RegisterProps {

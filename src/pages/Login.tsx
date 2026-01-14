@@ -6,6 +6,7 @@ import useAuthStore from "../store/useAuthStore";
 import { AxiosError } from "axios";
 import Input from "../components/common/Input";
 import type { LoginProps } from "../types/user.ts";
+import Button from "../components/common/Button.tsx";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -39,7 +40,6 @@ const Login = () => {
             <h2 className="text-3xl font-bold mb-10">LOGIN</h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md flex flex-col gap-4">
-                {/* forwardRef 없이 registration props로 전달 */}
                 <Input
                     type="email"
                     placeholder="이메일 아이디"
@@ -64,12 +64,9 @@ const Login = () => {
 
                 {serverError && <p className="text-red-600 text-sm text-center">{serverError}</p>}
 
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-black text-white py-4 font-bold text-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 mt-2">
+                <Button type="submit" fullWidth size="md" isLoading={isSubmitting}>
                     로그인
-                </button>
+                </Button>
             </form>
 
             <div className="mt-6 flex gap-4 text-sm text-gray-500">
