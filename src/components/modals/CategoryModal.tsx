@@ -4,7 +4,7 @@ import useModalStore from "../../store/useModalStore";
 import Modal from "../common/Modal";
 import Input from "../common/Input";
 import Button from "../common/Button";
-import { createCategory, updateCategory } from "../../api/category.api"; // updateCategory import 필요
+import { createCategory, updateCategory } from "../../api/admin.category.api.ts"; // updateCategory import 필요
 import { AxiosError } from "axios";
 
 interface CategoryForm {

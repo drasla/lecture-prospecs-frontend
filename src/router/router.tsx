@@ -6,6 +6,8 @@ import Login from "../pages/Login.tsx";
 import useAuthStore from "../store/useAuthStore.ts";
 import AdminLayout from "../layouts/AdminLayout.tsx";
 import AdminCategoryList from "../pages/(admin)/categories/AdminCategoryList.tsx";
+import AdminProductList from "../pages/(admin)/products/AdminProductList.tsx";
+import AdminProductNew from "../pages/(admin)/products/AdminProductNew.tsx";
 
 const guestOnlyLoader = () => {
     // useAuthStore는 훅이라 리액트 컴포넌트에서만 사용 가능함.
@@ -55,8 +57,9 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <div></div> },
             { path: "categories", element: <AdminCategoryList /> },
-            // { path: "products", element: <ProductList /> },
-            // { path: "products/new", element: <ProductCreate /> },
+            { path: "products", element: <AdminProductList /> },
+            { path: "products/new", element: <AdminProductNew /> },
+            { path: "products/:id", element: <div className="p-8">상품 수정 페이지 (준비중)</div> },
         ],
     },
 ]);

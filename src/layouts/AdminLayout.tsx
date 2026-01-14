@@ -21,7 +21,7 @@ const AdminLayout = () => {
 
                 <nav className="flex-1 p-4 space-y-2">
                     <Link
-                        to="/admin/dashboard"
+                        to="/admin"
                         className="block px-4 py-2 hover:bg-gray-800 rounded">
                         대시보드
                     </Link>

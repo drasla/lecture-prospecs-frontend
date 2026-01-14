@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Category, CategoryTree } from "../../../types/category.ts";
-import { deleteCategory, getCategories } from "../../../api/category.api.ts";
+import { deleteCategory, getCategories } from "../../../api/admin.category.api.ts";
 import { AxiosError } from "axios";
 import Button from "../../../components/common/Button.tsx";
 import useModalStore from "../../../store/useModalStore.tsx";
