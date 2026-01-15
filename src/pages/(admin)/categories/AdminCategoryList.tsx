@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Category, CategoryTree } from "../../../types/category.ts";
-import { deleteCategory, getCategories } from "../../../api/admin.category.api.ts";
+import { deleteAdminCategory, getAdminCategories } from "../../../api/admin.category.api.ts";
 import { AxiosError } from "axios";
 import Button from "../../../components/common/Button.tsx";
 import useModalStore from "../../../store/useModalStore.tsx";
@@ -14,7 +14,7 @@ const AdminCategoryList = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const data = await getCategories();
+            const data = await getAdminCategories();
 
             // 1. 부모 카테고리만 필터링 (parentId가 null)
             const parents = data.filter(cat => cat.parentId === null);
@@ -71,10 +71,11 @@ const AdminCategoryList = () => {
             isDanger: true,
             onConfirm: async () => {
                 try {
-                    await deleteCategory(id); // API 호출
+                    await deleteAdminCategory(id); // API 호출
                     alert("삭제되었습니다.");
                     fetchCategories(); // 새로고침
-                } catch (e) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                } catch (error) {
                     alert("삭제 실패: 하위 항목이 있거나 상품이 연결되어 있을 수 있습니다.");
                 }
             },

@@ -3,12 +3,12 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import { AxiosError } from "axios";
 import {
-    getProductDetail,
-    updateProduct,
+    getAdminProductDetail,
+    updateAdminProduct,
     type CreateProductRequest,
 } from "../../../api/admin.product.api";
 import type { CategoryTree } from "../../../types/category";
-import { getCategories } from "../../../api/admin.category.api";
+import { getAdminCategories } from "../../../api/admin.category.api";
 import Input from "../../../components/common/Input";
 import Button from "../../../components/common/Button";
 import ColorFormItem from "../../../components/common/ColorFormItem";
@@ -68,8 +68,8 @@ const AdminProductEdit = () => {
                 setIsLoading(true);
 
                 const [categoryData, productData] = await Promise.all([
-                    getCategories(),
-                    getProductDetail(Number(id)),
+                    getAdminCategories(),
+                    getAdminProductDetail(Number(id)),
                 ]);
 
                 const subCategories = categoryData.filter(
@@ -138,7 +138,7 @@ const AdminProductEdit = () => {
                 })),
             };
 
-            await updateProduct(Number(id), payload);
+            await updateAdminProduct(Number(id), payload);
             alert("상품이 수정되었습니다.");
             navigate("/admin/products");
         } catch (error) {

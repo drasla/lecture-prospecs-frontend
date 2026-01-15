@@ -40,7 +40,7 @@ export interface CreateProductRequest {
     }[];
 }
 
-export interface GetProductParams {
+export interface GetAdminProductParams {
     page?: number;
     limit?: number;
     categoryId?: number;
@@ -50,7 +50,7 @@ export interface GetProductParams {
 }
 
 // 상품 목록 조회
-export const getProducts = async (params: GetProductParams) => {
+export const getAdminProducts = async (params: GetAdminProductParams) => {
     const response = await httpClient.get<ProductListResponse>("/admin/products", {
         params,
         // 배열 파라미터 직렬화 (qs 라이브러리 사용)
@@ -60,13 +60,13 @@ export const getProducts = async (params: GetProductParams) => {
 };
 
 // 2. 상품 상세 조회 (수정 페이지용)
-export const getProductDetail = async (id: number) => {
+export const getAdminProductDetail = async (id: number) => {
     const response = await httpClient.get<Product>(`/admin/products/${id}`);
     return response.data;
 };
 
 // 3. [New] 상품 등록
-export const createProduct = async (data: CreateProductRequest) => {
+export const createAdminProduct = async (data: CreateProductRequest) => {
     const response = await httpClient.post<{ message: string; product: Product }>(
         "/admin/products",
         data,
@@ -75,7 +75,7 @@ export const createProduct = async (data: CreateProductRequest) => {
 };
 
 // 4. 상품 수정
-export const updateProduct = async (id: number, data: CreateProductRequest) => {
+export const updateAdminProduct = async (id: number, data: CreateProductRequest) => {
     const response = await httpClient.put<{ message: string; product: Product }>(
         `/admin/products/${id}`,
         data,
@@ -84,7 +84,7 @@ export const updateProduct = async (id: number, data: CreateProductRequest) => {
 };
 
 // 상품 삭제
-export const deleteProduct = async (id: number) => {
+export const deleteAdminProduct = async (id: number) => {
     const response = await httpClient.delete<{ message: string }>(`/admin/products/${id}`);
     return response.data;
 };

@@ -3,11 +3,11 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { AxiosError } from "axios";
 import type { CategoryTree } from "../../../types/category.ts";
-import { getCategories } from "../../../api/admin.category.api.ts";
+import { getAdminCategories } from "../../../api/admin.category.api.ts";
 import Input from "../../../components/common/Input.tsx";
 import Button from "../../../components/common/Button.tsx";
 import ColorFormItem from "../../../components/common/ColorFormItem.tsx";
-import { createProduct, type CreateProductRequest } from "../../../api/admin.product.api.ts";
+import { createAdminProduct, type CreateProductRequest } from "../../../api/admin.product.api.ts";
 import Editor from "../../../components/common/Editor";
 import { FILTER_GENDERS, FILTER_STYLES } from "../../../constants/filter.const"; // 분리한 컴포넌트
 
@@ -60,12 +60,13 @@ const AdminProductNew = () => {
     useEffect(() => {
         const loadCategories = async () => {
             try {
-                const data = await getCategories();
+                const data = await getAdminCategories();
                 const subCategories = data.filter(
                     c => c.parentId !== null,
                 ) as unknown as CategoryTree[];
                 setCategories(subCategories);
-            } catch (e) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (error) {
                 alert("카테고리 로드 실패");
             }
         };
@@ -83,7 +84,7 @@ const AdminProductNew = () => {
                 })),
             };
 
-            await createProduct(payload);
+            await createAdminProduct(payload);
             alert("상품이 등록되었습니다.");
             navigate("/admin/products");
         } catch (error) {

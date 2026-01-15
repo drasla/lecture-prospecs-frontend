@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import type { Product } from "../../types/product";
 import type { Category } from "../../types/category";
-import { getProducts } from "../../api/admin.product.api"; // API 재사용
-import { getCategories } from "../../api/admin.category.api"; // 카테고리 트리 조회용
 import ProductCard from "../../components/shop/ProductCard";
 import FilterSidebar from "../../components/shop/FilterSidebar";
+import { getCategories } from "../../api/category.api.ts";
+import { getProducts } from "../../api/product.api.ts";
 
 const ProductListPage = () => {
     const { id } = useParams<{ id: string }>();

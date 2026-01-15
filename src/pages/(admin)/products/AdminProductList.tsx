@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { AxiosError } from "axios";
 import type { Product } from "../../../types/product.ts";
 import useModalStore from "../../../store/useModalStore.tsx";
-import { deleteProduct, getProducts } from "../../../api/admin.product.api.ts";
+import { deleteAdminProduct, getAdminProducts } from "../../../api/admin.product.api.ts";
 import Button from "../../../components/common/Button.tsx";
 
 const AdminProductList = () => {
@@ -21,7 +21,7 @@ const AdminProductList = () => {
         try {
             setLoading(true);
             // [Fix] API 정의에 맞춰 객체 형태로 전달 ({ page, limit })
-            const data = await getProducts({
+            const data = await getAdminProducts({
                 page: pageNum,
                 limit: 10,
             });
@@ -51,7 +51,7 @@ const AdminProductList = () => {
             isDanger: true,
             onConfirm: async () => {
                 try {
-                    await deleteProduct(id);
+                    await deleteAdminProduct(id);
                     alert("삭제되었습니다.");
                     fetchProducts(page);
                 } catch (error) {

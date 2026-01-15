@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { IoSearch, IoCartOutline, IoMenu } from "react-icons/io5";
-import useCartStore from "../../store/useCartStore";
+import { IoSearch, IoMenu } from "react-icons/io5";
 import useLayoutStore from "../../store/useLayoutStore.ts";
 import { twMerge } from "tailwind-merge";
 import { useEffect, useState } from "react";
@@ -63,7 +62,6 @@ const Header = () => {
     const { pathname } = useLocation(); // 현재 경로 확인
     const navigate = useNavigate();
 
-    const cartCount = useCartStore(state => state.cartCount);
     const { isLoggedIn, user, logout } = useAuthStore();
     const { isTopBannerVisible, topBannerHeight } = useLayoutStore();
 
@@ -174,12 +172,6 @@ const Header = () => {
                     )}
                     <Link to="/cart" className="relative flex items-center gap-1">
                         <span className="text-sm font-bold hidden md:block">CART</span>
-                        <IoCartOutline className="text-2xl" />
-                        {cartCount > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
-                                {cartCount}
-                            </span>
-                        )}
                     </Link>
                 </div>
             </div>

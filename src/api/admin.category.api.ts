@@ -1,7 +1,7 @@
 import type { Category } from "../types/category.ts";
 import { httpClient } from "./axios.ts";
 
-export const getCategories = async () => {
+export const getAdminCategories = async () => {
     // 관리자 API 경로: /admin/categories (http.ts의 baseURL이 /api라고 가정 시 /admin/categories)
     // 만약 baseURL이 /api 라면, 경로는 /admin/categories 가 됩니다.
     const response = await httpClient.get<Category[]>("/admin/categories");
@@ -9,7 +9,7 @@ export const getCategories = async () => {
 };
 
 // 카테고리 생성
-export const createCategory = async (name: string, path: string, parentId?: number) => {
+export const createAdminCategory = async (name: string, path: string, parentId?: number) => {
     const response = await httpClient.post<{ message: string; category: Category }>(
         "/admin/categories",
         { name, path, parentId }, // path 추가
@@ -17,7 +17,7 @@ export const createCategory = async (name: string, path: string, parentId?: numb
     return response.data;
 };
 
-export const updateCategory = async (id: number, name: string, path: string) => {
+export const updateAdminCategory = async (id: number, name: string, path: string) => {
     const response = await httpClient.put<{ message: string; category: Category }>(
         `/admin/categories/${id}`,
         { name, path }
@@ -25,7 +25,7 @@ export const updateCategory = async (id: number, name: string, path: string) => 
     return response.data;
 };
 
-export const deleteCategory = async (id: number) => {
+export const deleteAdminCategory = async (id: number) => {
     const response = await httpClient.delete<{ message: string }>(
         `/admin/categories/${id}`
     );

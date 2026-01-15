@@ -4,7 +4,7 @@ import useModalStore from "../../store/useModalStore";
 import Modal from "../common/Modal";
 import Input from "../common/Input";
 import Button from "../common/Button";
-import { createCategory, updateCategory } from "../../api/admin.category.api.ts"; // updateCategory import 필요
+import { createAdminCategory, updateAdminCategory } from "../../api/admin.category.api.ts"; // updateCategory import 필요
 import { AxiosError } from "axios";
 
 interface CategoryForm {
@@ -45,11 +45,11 @@ const CategoryModal = () => {
         try {
             if (isEdit) {
                 // [수정]
-                await updateCategory(category.id, data.name, data.path);
+                await updateAdminCategory(category.id, data.name, data.path);
                 alert("수정되었습니다.");
             } else {
                 // [등록]
-                await createCategory(data.name, data.path, parentId || undefined);
+                await createAdminCategory(data.name, data.path, parentId || undefined);
                 alert("등록되었습니다.");
             }
 
