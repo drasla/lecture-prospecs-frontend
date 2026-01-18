@@ -15,14 +15,9 @@ const FilterSidebar = ({
     onFilterChange,
     onReset,
 }: FilterSidebarProps) => {
-    // 체크박스/버튼 공통 핸들러
-    const handleChange = (type: "styles" | "genders" | "sizes", value: string) => {
-        onFilterChange(type, value);
-    };
-
     return (
         <aside className="w-64 pr-8 space-y-10 h-fit">
-            {/* 초기화 버튼 */}
+            {/* 초기화 버튼 영역 */}
             <div className="flex justify-between items-center pb-4 border-b border-black">
                 <h2 className="font-bold text-lg">FILTER</h2>
                 <button
@@ -32,73 +27,89 @@ const FilterSidebar = ({
                 </button>
             </div>
 
-            {/* 1. 종류 (Style) - 체크박스 리스트 */}
-            <div className="space-y-4">
-                <h3 className="font-bold text-sm">종류</h3>
-                <div className="space-y-2  pr-2">
-                    {FILTER_STYLES.map(style => (
-                        <label
-                            key={style.value}
-                            className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                checked={selectedStyles.includes(style.value)}
-                                onChange={() => handleChange("styles", style.value)}
-                                className="w-4 h-4 border-gray-300 rounded focus:ring-black accent-black"
-                            />
-                            <span className="text-sm text-gray-600 group-hover:text-black transition-colors">
-                                {style.label}
-                            </span>
-                        </label>
-                    ))}
-                </div>
-            </div>
+            {/* 종류 (Styles) - 체크박스 */}
+            <FilterCheckboxSection
+                title="종류"
+                data={FILTER_STYLES}
+                selectedValues={selectedStyles}
+                onChange={value => onFilterChange("styles", value)}
+            />
 
-            {/* 2. 성별 (Gender) - 체크박스 리스트 */}
-            <div className="space-y-4">
-                <h3 className="font-bold text-sm">성별</h3>
-                <div className="space-y-2">
-                    {FILTER_GENDERS.map(gender => (
-                        <label
-                            key={gender.value}
-                            className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                checked={selectedGenders.includes(gender.value)}
-                                onChange={() => handleChange("genders", gender.value)}
-                                className="w-4 h-4 border-gray-300 rounded focus:ring-black accent-black"
-                            />
-                            <span className="text-sm text-gray-600 group-hover:text-black transition-colors">
-                                {gender.label}
-                            </span>
-                        </label>
-                    ))}
-                </div>
-            </div>
+            {/* 성별 (Genders) - 체크박스 */}
+            <FilterCheckboxSection
+                title="성별"
+                data={FILTER_GENDERS}
+                selectedValues={selectedGenders}
+                onChange={value => onFilterChange("genders", value)}
+            />
 
-            {/* 3. 사이즈 (Size) - 그리드 버튼 */}
-            <div className="space-y-4">
-                <h3 className="font-bold text-sm">사이즈</h3>
-                <div className="flex flex-wrap gap-2">
-                    {FILTER_SIZES.map(size => {
-                        const isSelected = selectedSizes.includes(size);
-                        return (
-                            <button
-                                key={size}
-                                onClick={() => handleChange("sizes", size)}
-                                className={`text-xs py-2 px-3 border transition-all rounded-sm ${
-                                    isSelected
-                                        ? "bg-black text-white border-black font-bold"
-                                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
-                                }`}>
-                                {size}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
+            {/* 사이즈 (Sizes) - 버튼 */}
+            <FilterButtonSection
+                title="사이즈"
+                data={FILTER_SIZES}
+                selectedValues={selectedSizes}
+                onChange={value => onFilterChange("sizes", value)}
+            />
         </aside>
     );
 };
 
 export default FilterSidebar;
+
+interface CheckboxSectionProps {
+    title: string;
+    data: { label: string; value: string }[];
+    selectedValues: string[];
+    onChange: (value: string) => void;
+}
+
+const FilterCheckboxSection = ({ title, data, selectedValues, onChange }: CheckboxSectionProps) => (
+    <div className="space-y-4">
+        <h3 className="font-bold text-sm">{title}</h3>
+        <div className="space-y-2 pr-2">
+            {data.map(item => (
+                <label key={item.value} className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                        type="checkbox"
+                        checked={selectedValues.includes(item.value)}
+                        onChange={() => onChange(item.value)}
+                        className="w-4 h-4 border-gray-300 rounded focus:ring-black accent-black"
+                    />
+                    <span className="text-sm text-gray-600 group-hover:text-black transition-colors">
+                        {item.label}
+                    </span>
+                </label>
+            ))}
+        </div>
+    </div>
+);
+
+interface ButtonSectionProps {
+    title: string;
+    data: string[];
+    selectedValues: string[];
+    onChange: (value: string) => void;
+}
+
+const FilterButtonSection = ({ title, data, selectedValues, onChange }: ButtonSectionProps) => (
+    <div className="space-y-4">
+        <h3 className="font-bold text-sm">{title}</h3>
+        <div className="flex flex-wrap gap-2">
+            {data.map(item => {
+                const isSelected = selectedValues.includes(item);
+                return (
+                    <button
+                        key={item}
+                        onClick={() => onChange(item)}
+                        className={`text-xs py-2 px-3 border transition-all rounded-sm ${
+                            isSelected
+                                ? "bg-black text-white border-black font-bold"
+                                : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                        }`}>
+                        {item}
+                    </button>
+                );
+            })}
+        </div>
+    </div>
+);

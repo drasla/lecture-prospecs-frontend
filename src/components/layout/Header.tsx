@@ -8,7 +8,7 @@ import useAuthStore from "../../store/useAuthStore.ts";
 const GNB_MENU = [
     {
         name: "RUNNING",
-        path: "/running",
+        path: "",
         subMenus: [
             { name: "신발", path: "/category/6" },
             { name: "의류", path: "/running/clothing" },

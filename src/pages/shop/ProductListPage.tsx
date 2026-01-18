@@ -41,7 +41,7 @@ const ProductListPage = () => {
             }
         };
 
-        fetchCategoryInfo();
+        fetchCategoryInfo().then(() => {});
 
         // 필터 초기화
         setSelectedStyles([]);
@@ -77,28 +77,35 @@ const ProductListPage = () => {
             }
         };
 
-        fetchProducts();
+        fetchProducts().then(() => {});
     }, [id, selectedStyles, selectedGenders, selectedSizes]); // id가 의존성
 
     // 필터 변경 핸들러 (Toggle)
     const handleFilterChange = (type: "styles" | "genders" | "sizes", value: string) => {
-        const setMap = {
-            styles: setSelectedStyles,
-            genders: setSelectedGenders,
-            sizes: setSelectedSizes,
-        };
-        const currentList = {
-            styles: selectedStyles,
-            genders: selectedGenders,
-            sizes: selectedSizes,
-        }[type];
+        switch (type) {
+            case "styles":
+                if (selectedStyles.includes(value)) {
+                    setSelectedStyles(selectedStyles.filter(item => item !== value));
+                } else {
+                    setSelectedStyles([...selectedStyles, value]);
+                }
+                break;
 
-        const setter = setMap[type];
+            case "genders":
+                if (selectedGenders.includes(value)) {
+                    setSelectedGenders(selectedGenders.filter(item => item !== value));
+                } else {
+                    setSelectedGenders([...selectedGenders, value]);
+                }
+                break;
 
-        if (currentList.includes(value)) {
-            setter(currentList.filter(item => item !== value));
-        } else {
-            setter([...currentList, value]);
+            case "sizes":
+                if (selectedSizes.includes(value)) {
+                    setSelectedSizes(selectedSizes.filter(item => item !== value));
+                } else {
+                    setSelectedSizes([...selectedSizes, value]);
+                }
+                break;
         }
     };
 
@@ -163,7 +170,6 @@ const ProductListPage = () => {
                             {products.map(product => (
                                 <div
                                     key={product.id}
-                                    // mb-12: 상하 간격 (기존 gap-y-12 대체)
                                     className="w-1/2 md:w-1/3 lg:w-1/4 px-3 mb-12">
                                     <ProductCard product={product} />
                                 </div>
@@ -185,3 +191,5 @@ const ProductListPage = () => {
 };;
 
 export default ProductListPage;
+
+
