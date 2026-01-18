@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import type { Product } from "../../types/product";
-import type { Category } from "../../types/category";
 import ProductCard from "../../components/shop/ProductCard";
 import FilterSidebar from "../../components/shop/FilterSidebar";
-import { getCategories } from "../../api/category.api.ts";
+import { getCategoryDetail } from "../../api/category.api.ts";
 import { getProducts } from "../../api/product.api.ts";
+import type { CategoryDetail } from "../../types/category.ts";
+import Breadcrumbs from "../../components/common/Breadcrumbs.tsx";
 
 const ProductListPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,7 +14,7 @@ const ProductListPage = () => {
     // 상태 관리
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+    const [categoryInfo, setCategoryInfo] = useState<CategoryDetail | null>(null);
 
     // 필터 상태
     const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
@@ -22,26 +23,18 @@ const ProductListPage = () => {
 
     // [단순화] 카테고리 정보 찾기 (ID로 검색)
     useEffect(() => {
-        const fetchCategoryInfo = async () => {
+        const fetchInfo = async () => {
             if (!id) return;
-
             try {
-                // 1. 전체 카테고리 가져오기 (배열 형태: [{id:1, ...}, {id:2, ...}])
-                const allCategories = await getCategories();
-
-                // [수정 2] 재귀 함수 삭제하고 .find()로 바로 찾기
-                // allCategories는 평탄한 배열이므로 그냥 id로 찾으면 됩니다.
-                const matched = allCategories.find(c => c.id === Number(id));
-
-                if (matched) {
-                    setCurrentCategory(matched);
-                }
-            } catch (error) {
-                console.error("카테고리 정보 로드 실패", error);
+                // [변경] 전체 조회 -> 단일 상세 조회
+                const data = await getCategoryDetail(Number(id));
+                setCategoryInfo(data);
+                // breadcrumbs 계산 로직 삭제! 백엔드가 줌.
+            } catch (e) {
+                console.error(e);
             }
         };
-
-        fetchCategoryInfo().then(() => {});
+        fetchInfo().then(() => {});
 
         // 필터 초기화
         setSelectedStyles([]);
@@ -122,13 +115,10 @@ const ProductListPage = () => {
             <div className="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
                 <div>
                     <h1 className="text-3xl font-extrabold uppercase tracking-tight">
-                        {currentCategory ? currentCategory.name : "ALL PRODUCTS"}
+                        {categoryInfo ? categoryInfo.name : "ALL PRODUCTS"}
                     </h1>
-                    {currentCategory && (
-                        <p className="text-gray-500 text-sm mt-1">
-                            Home &gt; {currentCategory.path}
-                        </p>
-                    )}
+
+                    <Breadcrumbs items={categoryInfo?.breadcrumbs} />
                 </div>
                 <div className="text-sm font-medium">
                     Total <span className="font-bold">{products.length}</span> Items
@@ -188,8 +178,6 @@ const ProductListPage = () => {
             </div>
         </div>
     );
-};;
+};
 
 export default ProductListPage;
-
-

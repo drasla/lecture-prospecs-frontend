@@ -1,13 +1,18 @@
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { getProductDetail } from "../../api/product.api";
 import type { Product, ProductColor, ProductImage } from "../../types/product";
 import Button from "../../components/common/Button.tsx";
 import Accordion from "../../components/common/Accordion.tsx";
 import { twMerge } from "tailwind-merge";
+import useCartStore from "../../store/useCartStore.ts";
+import useAuthStore from "../../store/useAuthStore.ts";
 
 const ProductDetailPage = () => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate(); // 페이지 이동용
+    const { addItem } = useCartStore(); // 장바구니 액션
+    const { isLoggedIn } = useAuthStore();
 
     // 상태 관리
     const [product, setProduct] = useState<Product | null>(null);
@@ -16,6 +21,8 @@ const ProductDetailPage = () => {
     // 선택 옵션
     const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
     const [selectedSize, setSelectedSize] = useState<string>("");
+
+    const [quantity, setQuantity] = useState<number>(1);
 
     // 메인 이미지 (색상 변경 시 변경됨)
     const [mainImage, setMainImage] = useState<string>("");
@@ -50,6 +57,56 @@ const ProductDetailPage = () => {
 
     // 현재 선택된 색상 데이터
     const currentColor = product.colors.find(c => c.id === selectedColorId);
+
+    const handleAddToCart = async () => {
+        if (!isLoggedIn) {
+            const confirmLogin = window.confirm(
+                "로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?",
+            );
+            if (confirmLogin) {
+                navigate("/auth/login");
+            }
+            return;
+        }
+        if (!selectedSize || !currentColor) {
+            alert("사이즈를 선택해주세요.");
+            return;
+        }
+
+        // 선택된 사이즈의 고유 ID(productSizeId) 찾기
+        const targetSizeObj = currentColor.sizes.find(s => s.size === selectedSize);
+        if (!targetSizeObj) {
+            alert("유효하지 않은 사이즈입니다.");
+            return;
+        }
+
+        // 품절 체크
+        if (targetSizeObj.stock <= 0) {
+            alert("품절된 상품입니다.");
+            return;
+        }
+
+        try {
+            // 스토어 함수 호출
+            await addItem(targetSizeObj.id, quantity);
+
+            // 성공 후 사용자 확인
+            if (window.confirm("장바구니에 상품을 담았습니다.\n장바구니로 이동하시겠습니까?")) {
+                navigate("/cart");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("장바구니 담기에 실패했습니다.");
+        }
+    };
+
+    const handleBuyNow = () => {
+        if (!selectedSize) {
+            alert("사이즈를 선택해주세요.");
+            return;
+        }
+        alert("바로 구매 기능은 결제 모듈 연동 후 구현됩니다.");
+    };
 
     return (
         <div className="w-full max-w-350 mx-auto px-4 md:px-0 py-40 text-gray-900">
@@ -100,7 +157,13 @@ const ProductDetailPage = () => {
                         />
 
                         {/* 구매 버튼 */}
-                        <RightButtonBox />
+                        <RightActionBox
+                            price={product.price}
+                            quantity={quantity}
+                            setQuantity={setQuantity}
+                            onAddToCart={handleAddToCart}
+                            onBuyNow={handleBuyNow}
+                        />
 
                         <RightAccordionBox product={product} />
                     </div>
@@ -291,13 +354,76 @@ function RightSizeSelectBox({
     );
 }
 
-function RightButtonBox() {
+interface RightActionBoxProps {
+    price: number;
+    quantity: number;
+    setQuantity: Dispatch<SetStateAction<number>>;
+    onAddToCart: () => void;
+    onBuyNow: () => void;
+}
+
+function RightActionBox({
+    price,
+    quantity,
+    setQuantity,
+    onAddToCart,
+    onBuyNow,
+}: RightActionBoxProps) {
+    const handleQuantity = (type: "plus" | "minus") => {
+        if (type === "plus") {
+            setQuantity(prev => prev + 1);
+        } else {
+            setQuantity(prev => (prev > 1 ? prev - 1 : 1));
+        }
+    };
+
     return (
-        <div className="flex flex-col gap-3">
-            <Button size={"md"}>바로구매</Button>
-            <Button variant={"secondary"} size={"md"}>
-                장바구니
-            </Button>
+        <div className="space-y-6 pt-4 border-t border-gray-100">
+            {/* 수량 및 총 금액 */}
+            <div className="bg-gray-50 p-5 rounded-sm">
+                <div className="flex justify-between items-center mb-4">
+                    <span className="text-sm font-bold text-gray-700">수량</span>
+                    <div className="flex items-center bg-white border border-gray-300">
+                        <button
+                            onClick={() => handleQuantity("minus")}
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600">
+                            -
+                        </button>
+                        <span className="w-10 h-8 flex items-center justify-center text-sm font-bold border-x border-gray-300">
+                            {quantity}
+                        </span>
+                        <button
+                            onClick={() => handleQuantity("plus")}
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600">
+                            +
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex justify-between items-center border-t border-gray-200 pt-4">
+                    <span className="font-bold text-gray-900">총 상품금액</span>
+                    <div>
+                        <span className="text-2xl font-extrabold text-orange-600">
+                            {(price * quantity).toLocaleString()}
+                        </span>
+                        <span className="text-sm font-medium ml-1">원</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* 버튼 그룹 */}
+            <div className="flex flex-col gap-3">
+                <Button size="lg" onClick={onBuyNow} className="w-full py-4 text-lg">
+                    바로구매
+                </Button>
+                <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={onAddToCart}
+                    className="w-full py-4 text-lg">
+                    장바구니
+                </Button>
+            </div>
         </div>
     );
 }

@@ -11,7 +11,7 @@ export interface GetProductParams {
     sizes?: string[];
 }
 
-// [사용자용] 상품 목록 조회 (경로가 /shop/products 임에 주의)
+// [사용자용] 상품 목록 조회 (경로가 /(shop)/products 임에 주의)
 export const getProducts = async (params: GetProductParams) => {
     const response = await httpClient.get("/products", {
         params,

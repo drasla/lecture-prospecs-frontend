@@ -7,7 +7,13 @@ export interface Category {
     updatedAt: string;
 }
 
-// 프론트엔드 표시용 (부모 안에 자식이 포함된 구조)
-export interface CategoryTree extends Category {
-    children: Category[];
+export interface BreadcrumbItem {
+    id: number;
+    name: string;
+    path: string;
+}
+
+// 3. [New] 상세 조회 응답 타입 (기본 타입 + breadcrumbs)
+export interface CategoryDetail extends Category {
+    breadcrumbs: BreadcrumbItem[];
 }

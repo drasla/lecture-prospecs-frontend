@@ -31,8 +31,8 @@ const Accordion = ({ title, children, defaultOpen = false, className = "" }: Acc
 
             {/* 본문 (애니메이션) */}
             <div
-                className={`overflow-hidden transition-all duration-800 ease-linear ${
-                    isOpen ? "max-h-[1000px]" : "max-h-0"
+                className={`overflow-hidden transition-all duration-800 ${
+                    isOpen ? "max-h-250" : "max-h-0"
                 }`}
             >
                 <div className="overflow-hidden">
