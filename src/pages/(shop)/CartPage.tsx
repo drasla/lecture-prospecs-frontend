@@ -1,10 +1,15 @@
 import { FiMinus, FiPlus, FiX } from "react-icons/fi";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useEffect } from "react";
 import useCartStore from "../../store/useCartStore.ts";
+import useOrderStore from "../../store/useOrderStore.ts";
+import useAuthStore from "../../store/useAuthStore.ts";
 
 const CartPage = () => {
+    const navigate = useNavigate();
     const { items, loading, fetchCart, updateQuantity, removeItem, getTotalPrice } = useCartStore();
+    const { setOrderItems } = useOrderStore();
+    const { isLoggedIn } = useAuthStore();
 
     useEffect(() => {
         fetchCart().then(() => {});
@@ -27,6 +32,26 @@ const CartPage = () => {
 
     const shippingCost = getTotalPrice() >= 50000 ? 0 : 3000;
     const totalAmount = getTotalPrice() + shippingCost;
+
+    const handleOrder = () => {
+        // 1. 로그인 체크 (혹시 모르니 안전장치)
+        if (!isLoggedIn) {
+            alert("로그인이 필요합니다.");
+            navigate("/auth/login");
+            return;
+        }
+
+        // 2. 장바구니 비었는지 확인
+        if (items.length === 0) {
+            alert("주문할 상품이 없습니다.");
+            return;
+        }
+
+        // 3. 주문 페이지로 이동
+        // state를 넘기지 않으면 OrderPage는 자동으로 useCartStore를 바라봅니다.
+        setOrderItems(items);
+        navigate("/order");
+    };
 
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
@@ -149,7 +174,9 @@ const CartPage = () => {
                             </span>
                         </div>
 
-                        <button className="w-full py-4 bg-black text-white font-bold text-lg hover:bg-gray-800 transition-colors">
+                        <button
+                            className="w-full py-4 bg-black text-white font-bold text-lg hover:bg-gray-800 transition-colors"
+                            onClick={handleOrder}>
                             주문하기
                         </button>
                     </div>

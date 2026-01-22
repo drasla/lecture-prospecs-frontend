@@ -2,6 +2,7 @@ import { Outlet } from "react-router";
 import useLayoutStore from "../store/useLayoutStore.ts";
 import TopBanner from "../components/layout/TopBanner.tsx";
 import Header from "../components/layout/Header.tsx";
+import GlobalModal from "../components/modals/GlobalModal.tsx";
 
 const Layout = () => {
     const { isTopBannerVisible, topBannerHeight } = useLayoutStore();
@@ -28,6 +29,7 @@ const Layout = () => {
             <footer className="bg-gray-900 text-gray-400 py-10 text-center text-sm">
                 <p>&copy; 2026 PROSPECS Clone. All rights reserved.</p>
             </footer>
+            <GlobalModal />
         </div>
     );
 };

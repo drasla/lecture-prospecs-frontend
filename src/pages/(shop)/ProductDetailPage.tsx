@@ -7,12 +7,15 @@ import Accordion from "../../components/common/Accordion.tsx";
 import { twMerge } from "tailwind-merge";
 import useCartStore from "../../store/useCartStore.ts";
 import useAuthStore from "../../store/useAuthStore.ts";
+import useOrderStore from "../../store/useOrderStore.ts";
+import type { CartItem } from "../../types/cart.ts";
 
 const ProductDetailPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate(); // 페이지 이동용
-    const { addItem } = useCartStore(); // 장바구니 액션
+    const { addItem } = useCartStore();
     const { isLoggedIn } = useAuthStore();
+    const { setOrderItems } = useOrderStore();
 
     // 상태 관리
     const [product, setProduct] = useState<Product | null>(null);
@@ -101,11 +104,57 @@ const ProductDetailPage = () => {
     };
 
     const handleBuyNow = () => {
-        if (!selectedSize) {
+        // 1. 로그인 체크
+        if (!isLoggedIn) {
+            if (
+                window.confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")
+            ) {
+                navigate("/auth/login");
+            }
+            return;
+        }
+
+        // 2. 옵션 선택 확인
+        if (!selectedSize || !currentColor) {
             alert("사이즈를 선택해주세요.");
             return;
         }
-        alert("바로 구매 기능은 결제 모듈 연동 후 구현됩니다.");
+
+        // 3. 사이즈 객체 찾기 (ID 및 재고 확인용)
+        const targetSizeObj = currentColor.sizes.find(s => s.size === selectedSize);
+        if (!targetSizeObj) {
+            alert("유효하지 않은 사이즈입니다.");
+            return;
+        }
+
+        // 4. 품절 체크
+        if (targetSizeObj.stock < quantity) {
+            alert(`재고가 부족합니다. (남은 수량: ${targetSizeObj.stock}개)`);
+            return;
+        }
+
+        const mockCartItem: CartItem = {
+            id: -1, // 임시 ID (DB 장바구니에 없으므로)
+            quantity: quantity,
+            productSize: {
+                id: targetSizeObj.id,
+                size: targetSizeObj.size,
+                stock: targetSizeObj.stock,
+                productColor: {
+                    colorName: currentColor.colorName,
+                    images: currentColor.images, // 이미지 배열 그대로 전달
+                    product: {
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                    },
+                },
+            },
+        };
+
+        // 스토어에 저장하고 이동
+        setOrderItems([mockCartItem]);
+        navigate("/order");
     };
 
     return (
