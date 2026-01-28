@@ -59,17 +59,16 @@ const GNB_MENU = [
 ];
 
 const Header = () => {
-    const { pathname } = useLocation(); // 현재 경로 확인
+    const { pathname } = useLocation();
     const navigate = useNavigate();
 
-    const { isLoggedIn, user, logout } = useAuthStore();
+    const { isLoggedIn, logout } = useAuthStore();
     const { isTopBannerVisible, topBannerHeight } = useLayoutStore();
 
     const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
-            // 스크롤이 0보다 크면 true (내려감), 아니면 false (맨 위)
             setIsScrolled(window.scrollY > 0);
         };
 
@@ -101,20 +100,16 @@ const Header = () => {
                     ? "bg-transparent border-transparent text-white"
                     : "bg-white border-gray-100",
             )}
-            // [핵심 로직] TopBanner 상태에 따라 sticky 위치 조정
             style={{ top: isTopBannerVisible ? `${topBannerHeight}px` : 0 }}>
-            <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-                {/* 모바일 메뉴 */}
+            <div className="mx-auto w-full px-4 h-20 flex items-center justify-between">
                 <button className="lg:hidden text-2xl">
                     <IoMenu />
                 </button>
 
-                {/* 로고 */}
-                <Link to="/" className="flex-shrink-0 w-40">
+                <Link to="/" className="shrink-0 w-40">
                     <span className="text-3xl font-black tracking-tighter italic">PROSPECS</span>
                 </Link>
 
-                {/* GNB (Desktop) */}
                 <nav className="hidden lg:flex flex-1 justify-center gap-12 font-bold text-[15px] tracking-tight">
                     {GNB_MENU.map(menu => (
                         <div
@@ -136,15 +131,13 @@ const Header = () => {
                     ))}
                 </nav>
 
-                {/* 우측 아이콘 */}
                 <div className="flex items-center gap-5 text-2xl w-100 justify-end">
-                    {/* ... 검색창 및 아이콘 코드 (이전과 동일) ... */}
                     <div className="relative hidden md:block group">
                         <input
                             type="text"
                             placeholder="검색"
                             className={twMerge(
-                                "w-40 border-b border-black text-sm py-1 focus:outline-none focus:w-60 transition-all",
+                                "w-20 border-b border-black text-sm py-1 focus:outline-none focus:w-30 transition-all",
                                 isTransparent
                                     ? "bg-transparent border-white text-white placeholder:text-white"
                                     : "border-gray-100",
@@ -156,9 +149,9 @@ const Header = () => {
                     </div>
                     {isLoggedIn ? (
                         <div className="items-center gap-3 hidden md:flex">
-                            {/* 유저 이름 표시 (옵션) */}
-                            <span className="text-sm font-medium">{user?.name}님</span>
-                            {/* 로그아웃 버튼 */}
+                            <Link to={"/my"} className={twMerge(["text-sm", "font-bold"])}>
+                                MYPAGE
+                            </Link>
                             <button
                                 onClick={handleLogout}
                                 className="text-sm font-bold hover:text-gray-500 transition-colors">
@@ -176,13 +169,11 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* [전체 펼침 메뉴 (Mega Menu)] */}
             <div
                 className={twMerge(
                     "absolute top-20 left-0 w-full bg-white border-t border-gray-100 overflow-hidden transition-all duration-300 ease-in-out z-10",
                     isMenuOpen ? "h-64 opacity-100 border-b shadow-sm" : "h-0 opacity-0 border-b-0",
                 )}>
-                {/* 상단 nav와 동일한 gap, 동일한 justify 구조를 가짐 */}
                 <div className="container mx-auto px-4 h-full flex justify-center pt-6">
                     <div className="w-40 invisible">Logo Space</div>
 

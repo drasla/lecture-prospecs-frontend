@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type ModalType = "CATEGORY_FORM" | "CONFIRM" | "POSTCODE" | "PAYMENT" | null;
+export type ModalType = "CATEGORY_FORM" | "CONFIRM" | "POSTCODE" | "PAYMENT" | "REVIEW_FORM" | null;
 
 interface ModalStore {
     modalType: ModalType;

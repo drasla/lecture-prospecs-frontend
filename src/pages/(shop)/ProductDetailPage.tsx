@@ -9,6 +9,7 @@ import useCartStore from "../../store/useCartStore.ts";
 import useAuthStore from "../../store/useAuthStore.ts";
 import useOrderStore from "../../store/useOrderStore.ts";
 import type { CartItem } from "../../types/cart.ts";
+import ProductReviews from "../../components/product/ProductReview.tsx";
 
 const ProductDetailPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -227,6 +228,8 @@ const ProductDetailPage = () => {
                     dangerouslySetInnerHTML={{ __html: product.description }}
                 />
             </div>
+
+            <ProductReviews productId={product.id} />
         </div>
     );
 };

@@ -8,7 +8,6 @@ export type OrderStatus =
     | "RETURN_REQUESTED"
     | "RETURN_COMPLETED";
 
-// 1. [요청] 주문 생성 데이터 (Checkout 화면에서 보낼 데이터)
 export interface OrderItemInput {
     productSizeId: number;
     quantity: number;
@@ -26,7 +25,6 @@ export interface CreateOrderRequest {
     paymentMethod: string;
 }
 
-// 2. [응답] 주문 상세 데이터 (목록/상세 조회 시 사용)
 export interface OrderProductImage {
     url: string;
 }
@@ -54,7 +52,7 @@ export interface OrderProductSize {
 export interface OrderItemDetail {
     id: number;
     quantity: number;
-    price: number; // 구매 당시 가격
+    price: number;
     productSize: OrderProductSize;
 }
 
@@ -66,11 +64,10 @@ export interface OrderPayment {
 
 export interface Order {
     id: number;
-    orderNumber: string; // Toss 결제용 UUID
+    orderNumber: string;
     status: OrderStatus;
     totalAmount: number;
 
-    // 배송 정보
     recipientName: string;
     recipientPhone: string;
     zipCode: string;
@@ -79,7 +76,6 @@ export interface Order {
     gatePassword?: string;
     deliveryRequest?: string;
 
-    // 결제 정보
     payment?: OrderPayment;
 
     createdAt: string;
@@ -90,4 +86,10 @@ export interface ConfirmOrderRequest {
     paymentKey: string;
     orderId: string;
     amount: number;
+}
+
+export interface CancelOrderResponse {
+    message: string;
+    orderId: number;
+    status: string; // "CANCELED"
 }

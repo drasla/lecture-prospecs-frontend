@@ -15,6 +15,11 @@ import CartPage from "../pages/(shop)/CartPage.tsx";
 import OrderPage from "../pages/(shop)/OrderPage.tsx";
 import OrderSuccessPage from "../pages/(shop)/OrderSuccessPage.tsx";
 import OrderFailPage from "../pages/(shop)/OrderFailPage.tsx";
+import MyDashboard from "../pages/(shop)/MyDashboard.tsx";
+import MyLayout from "../layouts/MyLayout.tsx";
+import MyOrderList from "../pages/(shop)/MyOrderList.tsx";
+import MyOrderDetail from "../pages/(shop)/MyOrderDetail.tsx";
+import MyReviewList from "../pages/(shop)/MyReviewList.tsx";
 
 const guestOnlyLoader = () => {
     // useAuthStore는 훅이라 리액트 컴포넌트에서만 사용 가능함.
@@ -65,6 +70,24 @@ const router = createBrowserRouter([
             },
             { path: "category/:id", element: <ProductListPage /> },
             { path: "product/:id", element: <ProductDetailPage /> },
+            {
+                path: "my",
+                element: <MyLayout />,
+                children: [
+                    { index: true, element: <MyDashboard /> },
+                    {
+                        path: "orders",
+                        children: [
+                            { index: true, element: <MyOrderList /> },
+                            {
+                                path: ":id",
+                                element: <MyOrderDetail />,
+                            },
+                        ],
+                    },
+                    { path: "reviews", children: [{ index: true, element: <MyReviewList /> }] },
+                ],
+            },
         ],
     },
     {

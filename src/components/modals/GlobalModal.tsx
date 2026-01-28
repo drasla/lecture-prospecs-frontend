@@ -3,12 +3,14 @@ import CategoryModal from "./CategoryModal";
 import ConfirmModal from "./ConfirmModal";
 import PostcodeModal from "./PostcodeModal.tsx";
 import PaymentModal from "./PaymentModal.tsx";
+import ReviewModal from "./ReviewModal.tsx";
 
 const MODAL_COMPONENTS = {
     CATEGORY_FORM: CategoryModal,
     CONFIRM: ConfirmModal,
     POSTCODE: PostcodeModal,
     PAYMENT: PaymentModal,
+    REVIEW_FORM: ReviewModal,
 };
 
 const GlobalModal = () => {
